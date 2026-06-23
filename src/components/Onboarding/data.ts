@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Sparkles, TrendingUp, Target } from 'lucide-react-native';
+import { isValidCurrencyInput, parseCurrencyInput } from '../../utils/currency';
 
 export const slides = [
   {
@@ -35,10 +36,11 @@ export const setupSchema = z.object({
     .string()
     .optional()
     .refine(
-      (val) => !val || (parseFloat(val) >= 0 && parseFloat(val) <= 999999.99),
+      (val) => !val || (isValidCurrencyInput(val) && parseCurrencyInput(val) >= 0 && parseCurrencyInput(val) <= 999999.99),
       'Valor inválido'
     ),
   salaryDate: z.string().optional(),
+  launchCurrentSalary: z.boolean().optional(),
   theme: z.enum(['light', 'dark']).optional(),
 });
 

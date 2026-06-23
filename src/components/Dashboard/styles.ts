@@ -41,13 +41,6 @@ export const getStyles = (colors: any) => StyleSheet.create({
   emptyStateText: { fontFamily: 'Manrope_500Medium', fontSize: 15, color: colors.muted, marginTop: 12 },
   emptyStateSubText: { fontFamily: 'Manrope_400Regular', fontSize: 13, color: colors.muted, opacity: 0.7, marginTop: 4 },
 
-  transactionCard: { backgroundColor: colors.card, borderRadius: 20, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-  transactionLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
-  transactionIcon: { padding: 10, borderRadius: 12 },
-  transactionDesc: { fontFamily: 'Manrope_500Medium', fontSize: 15, color: colors.foreground },
-  transactionCat: { fontFamily: 'Manrope_400Regular', fontSize: 12, color: colors.muted, marginTop: 2 },
-  transactionAmount: { fontFamily: 'Manrope_700Bold', fontSize: 15 },
-
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   loadingText: { fontFamily: 'Manrope_400Regular', fontSize: 14, color: colors.muted, marginTop: 12 },
   

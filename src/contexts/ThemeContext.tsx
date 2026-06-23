@@ -6,6 +6,7 @@ type Theme = 'light' | 'dark';
 type ThemeContextData = {
   theme: Theme;
   toggleTheme: () => void;
+  setThemePreference: (theme: Theme) => void;
   colors: typeof lightColors;
 };
 
@@ -52,10 +53,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const setThemePreference = useCallback((nextTheme: Theme) => {
+    setTheme(nextTheme);
+    AsyncStorage.setItem('lunir-theme', nextTheme);
+  }, []);
+
   const colors = theme === 'light' ? lightColors : darkColors;
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, colors }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setThemePreference, colors }}>
       {children}
     </ThemeContext.Provider>
   );

@@ -19,6 +19,16 @@ import { NotificationsSection } from './NotificationsSection';
 import { BackupSection } from './BackupSection';
 import { getUserSettings, toggleNotification, updateProfile, updateReminderTime } from '../../database/settingsService';
 import { ToggleSwitch } from './ToggleSwitch';
+import { parseCurrencyInput } from '../../utils/currency';
+import {
+  getRecurringExpenses,
+  RecurringTransaction,
+  RecurringTransactionInput,
+  toggleRecurringExpense,
+  updateRecurringExpense,
+} from '../../database/recurringService';
+import { FixedExpensesSection } from './FixedExpensesSection';
+import { syncNotifications } from '../../database/notificationService';
 
 export function SettingsScreen() {
   const db = useSQLiteContext();
@@ -29,14 +39,19 @@ export function SettingsScreen() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [recurringExpenses, setRecurringExpenses] = useState<RecurringTransaction[]>([]);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(16)).current;
 
   const loadSettings = useCallback(async () => {
     try {
-      const data = await getUserSettings(db);
+      const [data, fixedExpenses] = await Promise.all([
+        getUserSettings(db),
+        getRecurringExpenses(db),
+      ]);
       setSettings(data);
+      setRecurringExpenses(fixedExpenses);
     } catch (error) {
       console.error('Erro ao carregar configurações:', error);
     } finally {
@@ -69,7 +84,7 @@ export function SettingsScreen() {
 
   const handleSaveProfile = async (data: ProfileFormData) => {
     try {
-      const salary = data.salary ? parseFloat(data.salary) : null;
+      const salary = data.salary ? parseCurrencyInput(data.salary) : null;
       const salaryDate = data.salaryDate ? parseInt(data.salaryDate) : null;
       await updateProfile(db, data.name.trim(), salary, salaryDate);
       await loadSettings();
@@ -91,6 +106,7 @@ export function SettingsScreen() {
     if (!settings) return;
     try {
       await toggleNotification(db, key, settings[key] as number);
+      await syncNotifications(db);
       await loadSettings();
     } catch (error) {
       Toast.show({
@@ -104,9 +120,46 @@ export function SettingsScreen() {
   const handleReminderTimeChange = async (time: string) => {
     try {
       await updateReminderTime(db, time);
+      await syncNotifications(db);
       await loadSettings();
     } catch (error) {
       console.error('Erro ao atualizar horário:', error);
+    }
+  };
+
+  const handleSaveRecurringExpense = async (id: number, input: RecurringTransactionInput) => {
+    try {
+      await updateRecurringExpense(db, id, input);
+      await loadSettings();
+      Toast.show({
+        type: 'success',
+        text1: 'Gasto fixo atualizado!',
+        text2: 'A mudança valerá para os próximos lançamentos.',
+      });
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Erro ao salvar',
+        text2: 'Não foi possível atualizar o gasto fixo.',
+      });
+    }
+  };
+
+  const handleToggleRecurringExpense = async (id: number, isActive: boolean) => {
+    try {
+      await toggleRecurringExpense(db, id, isActive);
+      await loadSettings();
+      Toast.show({
+        type: 'success',
+        text1: isActive ? 'Gasto fixo ativado!' : 'Gasto fixo desativado!',
+        text2: 'O histórico já lançado não foi alterado.',
+      });
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Erro',
+        text2: 'Não foi possível alterar o gasto fixo.',
+      });
     }
   };
 
@@ -121,7 +174,6 @@ export function SettingsScreen() {
 
   return (
     <View style={styles.container}>
-
       <LinearGradient
         colors={[colors.gradientStart, colors.gradientEnd]}
         start={{ x: 0, y: 0 }}
@@ -174,6 +226,12 @@ export function SettingsScreen() {
           settings={settings}
           onToggle={handleToggleNotification}
           onReminderTimeChange={handleReminderTimeChange}
+        />
+
+        <FixedExpensesSection
+          expenses={recurringExpenses}
+          onSave={handleSaveRecurringExpense}
+          onToggle={handleToggleRecurringExpense}
         />
 
         <BackupSection />

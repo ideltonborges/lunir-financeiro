@@ -4,7 +4,7 @@ import {
   Animated, Dimensions, ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { TrendingUp, TrendingDown, Wallet, Plus, ArrowUpRight, ArrowDownRight, InboxIcon } from 'lucide-react-native';
+import { TrendingUp, TrendingDown, Wallet, Plus, ArrowUpRight, ArrowDownRight } from 'lucide-react-native';
 import { LineChart, PieChart } from 'react-native-chart-kit';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useFocusEffect } from '@react-navigation/native';
@@ -17,6 +17,7 @@ import {
   getLast7DaysTransactions,
   getTotals,
 } from '../../database/dashboardService';
+import { TransactionCard } from '../TransactionsList/TransactionCard';
 
 const { width } = Dimensions.get('window');
 
@@ -263,33 +264,12 @@ export function Dashboard({ onAddIncome, onAddExpense }: DashboardProps) {
                 < Text style={styles.emptyStateSubText} > Adicione sua primeira receita ou despesa </Text>
               </View>
             ) : (
-              data.recentTransactions.map((t) => (
-                <View key={t.id} style={styles.transactionCard} >
-                  <View style={styles.transactionLeft} >
-                    <View style={
-                      [styles.transactionIcon, {
-                        backgroundColor: t.type === 'income'
-                          ? 'rgba(16, 185, 129, 0.1)'
-                          : 'rgba(59, 130, 246, 0.1)'
-                      }]} >
-                      {
-                        t.type === 'income'
-                          ? <TrendingUp color="#10B981" size={20} />
-                          : < TrendingDown color="#3B82F6" size={20} />
-                      }
-                    </View>
-                    < View style={{ flex: 1 }}>
-                      <Text style={styles.transactionDesc} numberOfLines={1} > {t.description} </Text>
-                      < Text style={styles.transactionCat} > {t.category} </Text>
-                    </View>
-                  </View>
-                  < Text style={
-                    [styles.transactionAmount, {
-                      color: t.type === 'income' ? '#10B981' : '#EF4444'
-                    }]} >
-                    {t.type === 'income' ? '+' : '-'} R$ {t.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </Text>
-                </View>
+              data.recentTransactions.map((t, index) => (
+                <TransactionCard
+                  key={t.id}
+                  transaction={t}
+                  index={index}
+                />
               ))
             )}
         </View>

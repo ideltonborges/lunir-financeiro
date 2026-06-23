@@ -232,16 +232,105 @@ export const getStyles = (colors: any) => StyleSheet.create({
     fontSize: 13,
     color: colors.muted,
   },
-  reminderTimeInput: {
+  reminderTimeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     backgroundColor: colors.inputBg,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 10,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    borderRadius: 12,
+    paddingVertical: 9,
+    paddingHorizontal: 14,
+  },
+  reminderTimeValue: {
     fontFamily: 'Manrope_500Medium',
+    fontSize: 15,
+    color: colors.foreground,
+  },
+
+  emptyFixedText: {
+    fontFamily: 'Manrope_400Regular',
+    fontSize: 13,
+    color: colors.muted,
+    marginTop: 14,
+  },
+  fixedExpenseItem: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: 14,
+    marginTop: 14,
+  },
+  fixedHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  fixedInfo: {
+    flex: 1,
+  },
+  fixedTitle: {
+    fontFamily: 'Manrope_700Bold',
     fontSize: 14,
     color: colors.foreground,
+  },
+  fixedMeta: {
+    fontFamily: 'Manrope_400Regular',
+    fontSize: 12,
+    color: colors.muted,
+    marginTop: 3,
+  },
+  fixedAmount: {
+    fontFamily: 'Manrope_700Bold',
+    fontSize: 14,
+    color: '#ef4444',
+  },
+  fixedActions: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 12,
+  },
+  fixedSecondaryButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: colors.inputBg,
+  },
+  fixedDisabledButton: {
+    opacity: 0.75,
+  },
+  fixedSecondaryText: {
+    fontFamily: 'Manrope_500Medium',
+    fontSize: 13,
+    color: colors.foreground,
+  },
+  fixedPrimaryButton: {
+    flex: 1,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  fixedPrimaryGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: 12,
+  },
+  fixedPrimaryText: {
+    fontFamily: 'Manrope_700Bold',
+    fontSize: 13,
+    color: '#fff',
+  },
+  fixedEditRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  fixedEditColumn: {
+    flex: 1,
   },
 
   backupButton: {

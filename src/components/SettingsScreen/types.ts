@@ -9,6 +9,7 @@ export type UserSettings = {
   weekly_report: number;
   monthly_report: number;
   budget_alerts: number;
+  budget_alert_last_sent_month: string | null;
 };
 
 export type NotificationKey =

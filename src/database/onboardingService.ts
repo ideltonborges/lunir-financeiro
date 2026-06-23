@@ -1,45 +1,50 @@
 import * as SQLite from 'expo-sqlite';
 import { SetupFormData } from '../components/Onboarding/data';
+import { parseCurrencyInput } from '../utils/currency';
+import { formatLocalDate, getDateForMonthDay } from '../utils/date';
 
 export async function saveOnboardingData(db: SQLite.SQLiteDatabase, data: SetupFormData) {
 
-  const salaryValue = data.salary ? parseFloat(data.salary) : null;
+  const salaryValue = data.salary ? parseCurrencyInput(data.salary) : null;
   const salaryDay = data.salaryDate ? parseInt(data.salaryDate) : null;
+  const today = new Date();
+  const currentMonthStart = formatLocalDate(new Date(today.getFullYear(), today.getMonth(), 1));
+  const nextMonthStart = formatLocalDate(new Date(today.getFullYear(), today.getMonth() + 1, 1));
+  const currentMonthSalaryDate = getDateForMonthDay(today, salaryDay ?? today.getDate());
+  const todayString = formatLocalDate(today);
+  const salaryAutomationStartDate = data.launchCurrentSalary || todayString < currentMonthSalaryDate
+    ? currentMonthStart
+    : nextMonthStart;
 
   await db.runAsync(
-    `INSERT OR REPLACE INTO user_settings (id, name, base_salary, salary_date, theme)
-     VALUES (1, ?, ?, ?, ?)`,
+    `INSERT OR REPLACE INTO user_settings
+      (id, name, base_salary, salary_date, theme, salary_automation_start_date)
+     VALUES (1, ?, ?, ?, ?, ?)`,
     [
       data.name.trim(),
       salaryValue,
       salaryDay,
-      data.theme || 'light'
+      data.theme || 'light',
+      salaryAutomationStartDate
     ]
   );
 
-  if (salaryValue && salaryValue > 0) {
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = String(today.getMonth() + 1).padStart(2, '0');
-    
-    const dayToUse = salaryDay ? String(salaryDay).padStart(2, '0') : String(today.getDate()).padStart(2, '0');
-    
-    const transactionDate = `${currentYear}-${currentMonth}-${dayToUse}`;
-
+  if (data.launchCurrentSalary && salaryValue && salaryValue > 0) {
     await db.runAsync(
-      `INSERT INTO transactions (type, amount, description, category, is_fixed, date)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO transactions
+        (type, amount, description, category, is_fixed, date, auto_generated, recurring_kind)
+       VALUES (?, ?, ?, ?, ?, ?, 1, 'salary')`,
       [
         'income',
         salaryValue,
         'Salário mensal',
         'Salário',
         1,
-        transactionDate
+        currentMonthSalaryDate
       ]
     );
 
-    console.log(`Transação de salário gerada para a data: ${transactionDate}`);
+    console.log(`Transação de salário gerada para a data: ${currentMonthSalaryDate}`);
   }
 }
 

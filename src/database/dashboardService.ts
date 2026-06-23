@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import { getCurrentLocalDate } from '../utils/date';
 
 export type Transaction = {
   id: number;
@@ -42,11 +43,13 @@ export async function getLast7DaysTransactions(db: SQLite.SQLiteDatabase): Promi
 }
 
 export async function getTotals(db: SQLite.SQLiteDatabase): Promise<{ totalIncome: number; totalExpenses: number }> {
+  const today = getCurrentLocalDate();
   const result = await db.getFirstAsync<{ totalIncome: number; totalExpenses: number }>(`
     SELECT
       COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as totalIncome,
       COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as totalExpenses
     FROM transactions
-  `);
+    WHERE date <= ?
+  `, [today]);
   return result ?? { totalIncome: 0, totalExpenses: 0 };
 }

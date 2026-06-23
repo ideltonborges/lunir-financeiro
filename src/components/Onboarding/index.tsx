@@ -12,6 +12,7 @@ import { SetupForm } from './SetupForm';
 import { saveOnboardingData } from '../../database/onboardingService';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '../../contexts/ThemeContext';
 
 
 const { width } = Dimensions.get('window');
@@ -26,11 +27,12 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const [showSetup, setShowSetup] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const db = useSQLiteContext();
+  const { setThemePreference } = useTheme();
 
   const { control, handleSubmit, watch, setValue, formState: { errors, isValid } } = useForm<SetupFormData>({
     resolver: zodResolver(setupSchema),
     mode: 'onChange',
-    defaultValues: { name: '', salary: '', salaryDate: '', theme: 'light' },
+    defaultValues: { name: '', salary: '', salaryDate: '', launchCurrentSalary: false, theme: 'light' },
   });
 
   const selectedTheme = watch('theme');
@@ -48,6 +50,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     console.log('Dados salvos (pronto para o SQLite!):', data);
     try {
       await saveOnboardingData(db, data);
+      setThemePreference(data.theme || 'light');
       console.log('Dados salvos e banco atualizado!');
 
       onComplete();

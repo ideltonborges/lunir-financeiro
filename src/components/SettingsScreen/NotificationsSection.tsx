@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, Text, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Bell, Clock, FileText } from 'lucide-react-native';
 import { getStyles } from './styles';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -20,6 +21,24 @@ export function NotificationsSection({
   const notificationsOn = settings.notifications_enabled === 1;
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const reminderTime = settings.reminder_time ?? '08:00';
+
+  const getTimePickerDate = () => {
+    const [hourValue, minuteValue] = reminderTime.split(':').map((part) => Number(part));
+    const date = new Date();
+    date.setHours(Number.isFinite(hourValue) ? hourValue : 8);
+    date.setMinutes(Number.isFinite(minuteValue) ? minuteValue : 0);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    return date;
+  };
+
+  const formatTime = (date: Date) => {
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    return `${hour}:${minute}`;
+  };
 
   const rows: {
     key: NotificationKey;
@@ -27,31 +46,31 @@ export function NotificationsSection({
     title: string;
     subtitle: string;
   }[] = [
-      {
-        key: 'daily_reminder',
-        icon: Clock,
-        title: 'Lembrete diário',
-        subtitle: 'Registre suas transações',
-      },
-      {
-        key: 'weekly_report',
-        icon: FileText,
-        title: 'Relatório semanal',
-        subtitle: 'Resumo da semana',
-      },
-      {
-        key: 'monthly_report',
-        icon: FileText,
-        title: 'Relatório mensal',
-        subtitle: 'Resumo do mês',
-      },
-      {
-        key: 'budget_alerts',
-        icon: Bell,
-        title: 'Alertas de orçamento',
-        subtitle: 'Avisos sobre gastos altos',
-      },
-    ];
+    {
+      key: 'daily_reminder',
+      icon: Clock,
+      title: 'Lembrete diário',
+      subtitle: 'Registre suas transações',
+    },
+    {
+      key: 'weekly_report',
+      icon: FileText,
+      title: 'Relatório semanal',
+      subtitle: 'Resumo da semana',
+    },
+    {
+      key: 'monthly_report',
+      icon: FileText,
+      title: 'Relatório mensal',
+      subtitle: 'Resumo do mês',
+    },
+    {
+      key: 'budget_alerts',
+      icon: Bell,
+      title: 'Alertas de orçamento',
+      subtitle: 'Avisos sobre gastos altos',
+    },
+  ];
 
   return (
     <View style={styles.card}>
@@ -100,16 +119,31 @@ export function NotificationsSection({
 
             {row.key === 'daily_reminder' && isOn && notificationsOn && (
               <View style={styles.reminderTimeRow}>
-                <Text style={styles.reminderTimeLabel}>Horário:</Text>
-                <TextInput
-                  style={styles.reminderTimeInput}
-                  value={settings.reminder_time ?? '08:00'}
-                  onChangeText={onReminderTimeChange}
-                  placeholder="08:00"
-                  placeholderTextColor="#94a3b8"
-                  keyboardType="numbers-and-punctuation"
-                  maxLength={5}
-                />
+                <Text style={styles.reminderTimeLabel}>Horário</Text>
+                <TouchableOpacity
+                  style={styles.reminderTimeButton}
+                  activeOpacity={0.8}
+                  onPress={() => setShowTimePicker(true)}
+                >
+                  <Clock size={16} color={colors.gradientStart} />
+                  <Text style={styles.reminderTimeValue}>{reminderTime}</Text>
+                </TouchableOpacity>
+
+                {showTimePicker && (
+                  <DateTimePicker
+                    value={getTimePickerDate()}
+                    mode="time"
+                    display="default"
+                    is24Hour
+                    locale="pt-BR"
+                    onChange={(event, selectedDate) => {
+                      setShowTimePicker(false);
+                      if (event.type === 'set' && selectedDate) {
+                        void onReminderTimeChange(formatTime(selectedDate));
+                      }
+                    }}
+                  />
+                )}
               </View>
             )}
           </View>

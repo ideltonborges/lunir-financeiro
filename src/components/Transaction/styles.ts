@@ -30,6 +30,8 @@ export const getStyles = (colors: any) => StyleSheet.create({
   amountInput: { flex: 1, padding: 16, fontSize: 22, fontWeight: '700', color: colors.foreground, fontFamily: 'Manrope_700Bold' },
 
   input: { backgroundColor: colors.inputBg, borderWidth: 1, borderColor: colors.border, borderRadius: 16, padding: 16, fontSize: 16, color: colors.foreground, fontFamily: 'Manrope_400Regular' },
+  inputText: { fontSize: 16, color: colors.foreground, fontFamily: 'Manrope_400Regular' },
+  placeholderText: { color: colors.muted },
   inputError: { borderColor: '#ef4444' },
 
   errorRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },

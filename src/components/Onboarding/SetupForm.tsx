@@ -6,6 +6,7 @@ import { Picker } from '@react-native-picker/picker';
 import { Moon, Sun, Check, AlertCircle } from 'lucide-react-native';
 import { styles } from './styles';
 import { Shadow } from 'react-native-shadow-2';
+import { parseCurrencyInput } from '../../utils/currency';
 
 interface SetupFormProps {
   control: any;
@@ -105,24 +106,52 @@ export const SetupForm = ({ control, handleSubmit, onSubmit, errors, isValid, sa
                   )}
                 </View>
 
-                {salary && parseFloat(salary) > 0 ? (
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Qual dia você recebe? <Text style={styles.optional}>(opcional)</Text></Text>
-                    <View style={styles.pickerContainer}>
-                      <Controller
-                        control={control}
-                        name="salaryDate"
-                        render={({ field: { onChange, value } }) => (
-                          <Picker selectedValue={value} onValueChange={onChange} style={styles.picker}>
-                            <Picker.Item label="Selecione o dia" value="" />
-                            {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                              <Picker.Item key={day} label={`Dia ${day}`} value={day.toString()} />
-                            ))}
-                          </Picker>
-                        )}
-                      />
+                {salary && parseCurrencyInput(salary) > 0 ? (
+                  <>
+                    <View style={styles.inputGroup}>
+                      <Text style={styles.label}>Qual dia você recebe? <Text style={styles.optional}>(opcional)</Text></Text>
+                      <View style={styles.pickerContainer}>
+                        <Controller
+                          control={control}
+                          name="salaryDate"
+                          render={({ field: { onChange, value } }) => (
+                            <Picker
+                              selectedValue={value}
+                              onValueChange={onChange}
+                              style={styles.picker}
+                              itemStyle={styles.pickerItem}
+                              dropdownIconColor="#0f172a"
+                            >
+                              <Picker.Item label="Selecione o dia" value="" />
+                              {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                                <Picker.Item key={day} label={`Dia ${day}`} value={day.toString()} />
+                              ))}
+                            </Picker>
+                          )}
+                        />
+                      </View>
                     </View>
-                  </View>
+
+                    <Controller
+                      control={control}
+                      name="launchCurrentSalary"
+                      render={({ field: { onChange, value } }) => (
+                        <TouchableOpacity
+                          style={styles.checkboxRow}
+                          activeOpacity={0.8}
+                          onPress={() => onChange(!value)}
+                        >
+                          <View style={[styles.checkbox, value && styles.checkboxActive]}>
+                            {value && <Check size={14} color="#fff" />}
+                          </View>
+                          <View style={styles.checkboxTextWrap}>
+                            <Text style={styles.checkboxTitle}>Lançar salário deste mês agora</Text>
+                            <Text style={styles.checkboxSubtitle}>Se desmarcar, a carteira começa zerada e a rotina lança no próximo ciclo.</Text>
+                          </View>
+                        </TouchableOpacity>
+                      )}
+                    />
+                  </>
                 ) : null}
 
                 <View style={styles.inputGroup}>

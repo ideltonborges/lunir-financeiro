@@ -5,7 +5,8 @@ export async function getUserSettings(db: SQLite.SQLiteDatabase): Promise<UserSe
   return await db.getFirstAsync<UserSettings>(
     `SELECT name, theme, base_salary, salary_date,
             notifications_enabled, daily_reminder, reminder_time,
-            weekly_report, monthly_report, budget_alerts
+            weekly_report, monthly_report, budget_alerts,
+            budget_alert_last_sent_month
      FROM user_settings WHERE id = 1`
   );
 }

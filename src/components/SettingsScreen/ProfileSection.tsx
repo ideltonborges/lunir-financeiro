@@ -10,6 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { getStyles } from './styles';
 import { useTheme } from '../../contexts/ThemeContext';
 import { UserSettings, ProfileFormData } from './types';
+import { isValidCurrencyInput, parseCurrencyInput } from '../../utils/currency';
 
 const profileSchema = z.object({
   name: z
@@ -19,14 +20,12 @@ const profileSchema = z.object({
     .regex(/^[a-zA-ZÀ-ÿ\s]+$/, 'Apenas letras'),
   salary: z
     .string()
-    .optional()
     .refine(
-      (val) => !val || (parseFloat(val) >= 0 && parseFloat(val) <= 999999.99),
+      (val) => !val || (isValidCurrencyInput(val) && parseCurrencyInput(val) >= 0 && parseCurrencyInput(val) <= 999999.99),
       'Valor entre R$ 0 e R$ 999.999,99'
     ),
   salaryDate: z
     .string()
-    .optional()
     .refine(
       (val) => !val || (parseInt(val) >= 1 && parseInt(val) <= 31),
       'Dia entre 1 e 31'

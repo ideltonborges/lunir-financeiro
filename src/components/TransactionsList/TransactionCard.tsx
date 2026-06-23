@@ -8,7 +8,7 @@ import { Transaction } from './types';
 interface TransactionCardProps {
   transaction: Transaction;
   index: number;
-  onDeletePress: (id: number) => void;
+  onDeletePress?: (id: number) => void;
 }
 
 export function TransactionCard({ transaction, index, onDeletePress }: TransactionCardProps) {
@@ -93,13 +93,15 @@ export function TransactionCard({ transaction, index, onDeletePress }: Transacti
             {isIncome ? '+' : '-'} R$ {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </Text>
 
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => onDeletePress(transaction.id)}
-            activeOpacity={0.7}
-          >
-            <Trash2 size={16} color="#ef4444" />
-          </TouchableOpacity>
+          {onDeletePress && (
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => onDeletePress(transaction.id)}
+              activeOpacity={0.7}
+            >
+              <Trash2 size={16} color="#ef4444" />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </Animated.View>

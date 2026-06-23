@@ -17,9 +17,11 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { expenseCategories, incomeCategories, TransactionFormData, transactionSchema } from './data';
 import { useSQLiteContext } from 'expo-sqlite';
 import { saveTransaction } from '../../database/transactionService';
+import { parseCurrencyInput } from '../../utils/currency';
 import Toast from 'react-native-toast-message';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../../navigation/AppNavigator';
+import { syncNotifications } from '../../database/notificationService';
 
 type RouteProps = RouteProp<RootStackParamList, 'AddTransaction'>;
 
@@ -81,10 +83,11 @@ export function AddTransaction() {
   const onSubmit = async (data: TransactionFormData) => {
     try {
       await saveTransaction(db, data);
+      await syncNotifications(db);
       Toast.show({
         type: 'success',
         text1: 'Transação salva!',
-        text2: `${data.type === 'income' ? 'Receita' : 'Despesa'} de R$ ${parseFloat(data.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} registrada.`,
+        text2: `${data.type === 'income' ? 'Receita' : 'Despesa'} de R$ ${parseCurrencyInput(data.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} registrada.`,
       });
       console.log('Transação salva com sucesso!');
       navigation.goBack()
@@ -249,7 +252,7 @@ export function AddTransaction() {
                     style={styles.input}
                     onPress={() => setShowDatePicker(true)}
                   >
-                    <Text style={{ fontSize: 16, color: value ? '#0f172a' : '#94a3b8', fontFamily: 'Manrope_400Regular' }}>
+                    <Text style={[styles.inputText, !value && styles.placeholderText]}>
                       {value
                         ? new Date(value + 'T00:00:00').toLocaleDateString('pt-BR')
                         : 'Selecione uma data'}
